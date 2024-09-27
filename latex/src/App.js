@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import './App.css';
+import Latex from 'react-latex-next';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
@@ -48,35 +49,39 @@ function App() {
 
   return (
     <div className="container">
-    <div className="row">
-      <div className="col">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="LaTeX Anything"
-          className="form-control"
-        />
-      </div>
-      <div className="col-auto">
-        <button onClick={getResponseForGivenPrompt} className="btn btn-primary">Go</button>
-      </div>
-    </div>
-    {loading ? (
-      <div className="text-center mt-3">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-       // This message is shown while your answer to your prompt is being generated
+      <div className="row">
+        <div className="col">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="LaTeX Anything"
+            className="form-control"
+          />
+        </div>
+        <div className="col-auto">
+          <button onClick={getResponseForGivenPrompt} className="btn btn-primary">Go</button>
         </div>
       </div>
-    ) : (
-      promptResponses.map((promptResponse, index) => (
-        <div key={index} >
-          <div className={`response-text ${index === promptResponses.length - 1 ? 'fw-bold' : ''}`}>{promptResponse}</div>
-     //the latest response shown in bold letters
+      {loading ? (
+        <div className="text-center mt-3">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+        // This message is shown while your answer to your prompt is being generated
+          </div>
         </div>
-      ))
-    )}
+      ) : (
+        promptResponses.map((promptResponse, index) => (
+          <div key={index} >
+            <div className={`response-text ${index === promptResponses.length - 1 ? 'fw-bold' : ''}`}>
+              {promptResponse}
+              <Latex>{promptResponse}</Latex>
+              
+            </div>
+      //the latest response shown in bold letters
+          </div>
+        ))
+      )}
   </div>
   
   );
