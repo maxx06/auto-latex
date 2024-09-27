@@ -24,8 +24,35 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.head-text{
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-control {
+  
+  background-color: rgb(250, 251, 252);
+  border-color: rgb(223, 225, 230);
+  color: rgb(9, 30, 66);
+  cursor: text;
+  border-radius: 3px;
+  border-width: 2px;
+  border-style: solid;
+  box-sizing: border-box;
+  font-size: 14px;
+  transition: background-color 0.2s ease-in-out 0s, border-color 0.2s ease-in-out 0s;
+  line-height: 1.42857; 
+  padding: 8px 6px;
+  height: 36px;
+  :hover{
+      background-color: rgb(235, 236, 240);
+  }
+  :focus{
+      background-color: rgb(255, 255, 255);
+      border-color: rgb(76, 154, 255);
+  }
+
 }
 
 @keyframes App-logo-spin {
