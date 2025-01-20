@@ -59,32 +59,27 @@ function createChatBox() {
     const message = input.value.trim();
     if (!message) return;
     
-    // Add user message to chat
     appendMessage('user', message);
     input.value = '';
     
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('http://localhost:3000/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_API_KEY_HERE'
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [{
-            role: 'user',
-            content: message
-          }]
-        })
+        body: JSON.stringify({ message })
       });
       
       const data = await response.json();
-      const aiResponse = data.choices[0].message.content;
-      appendMessage('assistant', aiResponse);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      appendMessage('assistant', data.response);
     } catch (error) {
       appendMessage('error', 'Error: Could not get response from AI');
-    } 
+      console.error('Error:', error);
+    }
   });
   
   // Handle enter key

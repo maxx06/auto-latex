@@ -4,6 +4,9 @@
   "version": "1.0",
   "description": "Adds an AI chat interface to Overleaf",
   "permissions": ["activeTab"],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ],
   "content_scripts": [
     {
       "matches": ["*://*.overleaf.com/*"],
