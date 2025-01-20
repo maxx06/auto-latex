@@ -75,4 +75,52 @@
   background-color: #ffebee;
   color: #c62828;
   margin-right: auto;
+}
+
+.suggestion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.suggestion-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  max-width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.suggestion-content pre {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.suggestion-content button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#accept-suggestion {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#reject-suggestion {
+  background-color: #f44336;
+  color: white;
 } 
