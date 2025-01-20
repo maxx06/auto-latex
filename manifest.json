@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Overleaf Chat Assistant",
+  "version": "1.0",
+  "description": "Adds an AI chat interface to Overleaf",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.overleaf.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+} 
