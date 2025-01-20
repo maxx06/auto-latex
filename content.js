@@ -1,7 +1,6 @@
 function createChatBox() {
   console.log("Attempting to create chat box...");
   
-  // Check if chat box already exists to prevent duplicates
   if (document.querySelector('.overleaf-chat-container')) {
     console.log("Chat box already exists");
     return;
@@ -18,7 +17,7 @@ function createChatBox() {
   
   const input = document.createElement('textarea');
   input.className = 'chat-input';
-  input.placeholder = 'Ask a question...';
+  input.placeholder = 'Ask Claude...';
   
   const sendButton = document.createElement('button');
   sendButton.className = 'chat-send-button';
@@ -29,32 +28,9 @@ function createChatBox() {
   chatContainer.appendChild(chatHistory);
   chatContainer.appendChild(inputContainer);
   
-  // Try multiple possible selectors for the Overleaf editor
-  const possibleSelectors = [
-    '.editor-wrapper',
-    '#editor',
-    '.pdf-viewer',
-    '.full-size',
-    'body'  // fallback
-  ];
-
-  let targetContainer = null;
-  for (const selector of possibleSelectors) {
-    targetContainer = document.querySelector(selector);
-    if (targetContainer) {
-      console.log(`Found target container with selector: ${selector}`);
-      break;
-    }
-  }
-
-  if (targetContainer) {
-    targetContainer.appendChild(chatContainer);
-    console.log("Chat box successfully added");
-  } else {
-    console.error("Could not find suitable container for chat box");
-  }
+  document.body.appendChild(chatContainer);
+  console.log("Chat box added to body");
   
-  // Handle sending messages
   sendButton.addEventListener('click', async () => {
     const message = input.value.trim();
     if (!message) return;
@@ -82,7 +58,6 @@ function createChatBox() {
     }
   });
   
-  // Handle enter key
   input.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -100,26 +75,6 @@ function appendMessage(role, content) {
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-// Try multiple times to create the chat box as Overleaf loads dynamically
-function initializeChatBox() {
-  console.log("Initializing chat box...");
-  createChatBox();
-}
-
-// Initial attempt
-document.addEventListener('DOMContentLoaded', initializeChatBox);
-
-// Multiple delayed attempts to catch after dynamic content loads
-[1000, 2000, 3000].forEach(delay => {
-  setTimeout(initializeChatBox, delay);
-});
-
-// Also try when URL changes (for when switching between editor and PDF view)
-let lastUrl = location.href; 
-new MutationObserver(() => {
-  const url = location.href;
-  if (url !== lastUrl) {
-    lastUrl = url;
-    initializeChatBox();
-  }
-}).observe(document, {subtree: true, childList: true}); 
+// Initialize chat box
+document.addEventListener('DOMContentLoaded', createChatBox);
+setTimeout(createChatBox, 1000); 

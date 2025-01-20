@@ -1,6 +1,6 @@
 .overleaf-chat-container {
   position: fixed;
-  bottom: 0;
+  bottom: 20px;
   right: 20px;
   width: 300px;
   height: 400px;
@@ -11,6 +11,11 @@
   flex-direction: column;
   z-index: 9999;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Make sure the chat box stays on top */
+.overleaf-chat-container * {
+  z-index: 9999;
 }
 
 .chat-history {
