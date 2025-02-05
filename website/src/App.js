@@ -1,9 +1,48 @@
+import { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
+  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < lastScrollY) {
+        // Scrolling UP
+        setIsNavbarVisible(true);
+      } else if (currentScrollY > 50) {
+        // Scrolling DOWN and past the threshold
+        setIsNavbarVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+      
+      // Parallax effect - negative value for correct direction
+      setScrollPosition(-window.pageYOffset);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   return (
     <div className="App">
-      <nav className="navbar">
+      <div className="stars-container">
+        {[...Array(12)].map((_, i) => (
+          <div 
+            key={i} 
+            className={`star star-${i + 1}`}
+            style={{
+              transform: `translate3d(0, ${scrollPosition * (0.2 + i * 0.1)}px, 0) scale(${1 + i * 0.1})`
+            }}
+          />
+        ))}
+      </div>
+
+      <nav className={`navbar ${isNavbarVisible ? '' : 'navbar-hidden'}`}>
         <div className="navbar-brand">LaTeX Copilot</div>
         <div className="navbar-links">
           <a href="#features">Features</a>
@@ -78,7 +117,7 @@ function App() {
       </main>
 
       <footer className="App-footer">
-        <p>Crreated by Max Xiong</p>
+        <p>Created by Max Xiong</p>
       </footer>
     </div>
   );

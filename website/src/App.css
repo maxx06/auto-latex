@@ -1,7 +1,7 @@
 :root {
-  --primary-color: #4ECCA3;
-  --primary-dark: #2E8B57;
-  --accent-green: #45B08C;
+  --primary-color: #4ECCA3;  /* Muted aesthetic green */
+  --primary-dark: #2E8B57;   /* Darker sea green */
+  --accent-green: #45B08C;   /* A complementary green hue */
   --background-dark: #0A0A0A;
   --card-background: #1A1A1A;
   --text-primary: #FFFFFF;
@@ -12,6 +12,40 @@ body {
   margin: 0;
   background-color: var(--background-dark);
   color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Creative, subtle animated background overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Two-layer background:
+     1. A soft radial gradient from the center
+     2. A subtle repeating diagonal line pattern */
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(78,204,163,0.08) 0%, transparent 70%),
+    repeating-linear-gradient(
+      45deg, 
+      rgba(255,255,255,0.02), 
+      rgba(255,255,255,0.02) 1px, 
+      transparent 1px, 
+      transparent 20px
+    );
+  background-blend-mode: screen;
+  animation: moveBackground 30s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes moveBackground {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(20px, 20px); }
+  100% { transform: translate(0, 0); }
 }
 
 .App {
@@ -21,15 +55,51 @@ body {
   flex-direction: column;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background-color: rgba(10, 10, 10, 0.3);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 1000;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.navbar-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.navbar-brand {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.navbar-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-links a:hover {
+  color: #4ECCA3;
 }
 
 .App-header {
@@ -138,6 +208,7 @@ h1 {
 }
 
 .feature-card:hover {
+  transform: translateY(-5px);
   border-color: #4ECCA3;
   box-shadow: 0 4px 20px rgba(78,204,163,0.1);
 }
@@ -162,7 +233,6 @@ h1 {
 .step-number {
   background: linear-gradient(135deg, #4ECCA3, #2E8B57);
   color: white;
-  font-weight: 500;
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -170,6 +240,7 @@ h1 {
   justify-content: center;
   border-radius: 50%;
   margin-bottom: 1rem;
+  font-weight: 500;
 }
 
 .App-footer {
@@ -226,42 +297,77 @@ p {
   }
 }
 
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  background-color: rgba(10, 10, 10, 0.8);
-  backdrop-filter: blur(10px);
-  z-index: 1000;
-}
-
-.navbar-brand {
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.navbar-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.navbar-links a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 1.1rem;
-  transition: color 0.2s;
-}
-
-.navbar-links a:hover {
-  color: #4ECCA3;
-}
-
 html {
   scroll-behavior: smooth;
+}
+
+/* Star styles and animations */
+.stars-container {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+}
+
+.star {
+  position: absolute;
+  width: 0;
+  height: 0;
+  /* Made stars even smaller */
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 8px solid #FFD700;
+  opacity: 0;
+  will-change: transform;
+}
+
+.star::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 8px solid #FFD700;
+}
+
+.star::after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 215, 0, 0) 70%);
+  border-radius: 50%;
+}
+
+/* Added more star positions */
+.star-1 { left: 5%; top: 20%; animation: twinkle 4s ease-in-out infinite; }
+.star-2 { left: 10%; top: 40%; animation: twinkle 5s ease-in-out infinite 1s; }
+.star-3 { left: 8%; top: 60%; animation: twinkle 4.5s ease-in-out infinite 2s; }
+.star-4 { left: 3%; top: 80%; animation: twinkle 5.5s ease-in-out infinite 0.5s; }
+.star-5 { right: 5%; top: 25%; animation: twinkle 5s ease-in-out infinite 1.5s; }
+.star-6 { right: 10%; top: 45%; animation: twinkle 4s ease-in-out infinite 0.7s; }
+.star-7 { right: 8%; top: 65%; animation: twinkle 4.5s ease-in-out infinite 2.5s; }
+.star-8 { right: 3%; top: 85%; animation: twinkle 5.5s ease-in-out infinite 1.2s; }
+.star-9 { left: 15%; top: 30%; animation: twinkle 4.2s ease-in-out infinite 0.3s; }
+.star-10 { right: 15%; top: 70%; animation: twinkle 4.8s ease-in-out infinite 1.8s; }
+.star-11 { left: 20%; top: 75%; animation: twinkle 5.2s ease-in-out infinite 0.9s; }
+.star-12 { right: 20%; top: 35%; animation: twinkle 4.7s ease-in-out infinite 2.2s; }
+
+@keyframes twinkle {
+  0% { 
+    opacity: 0; 
+  }
+  50% { 
+    opacity: 0.8; 
+  }
+  100% { 
+    opacity: 0; 
+  }
 }
