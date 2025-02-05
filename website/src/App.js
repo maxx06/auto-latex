@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
 
 function App() {
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const cursorRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +29,39 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Custom cursor update
+  useEffect(() => {
+    const moveCursor = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      }
+    };
+    window.addEventListener('mousemove', moveCursor);
+    return () => window.removeEventListener('mousemove', moveCursor);
+  }, []);
+
+  // Optimized parallax speeds based on star position
+  const getParallaxSpeed = (index) => {
+    // Stars 1-4 (left side, top to bottom)
+    if (index < 4) return 0.15 + (index * 0.05);
+    // Stars 5-8 (right side, top to bottom)
+    if (index < 8) return 0.25 + ((index - 4) * 0.05);
+    // Stars 9-12 (outer edges)
+    return 0.35 + ((index - 8) * 0.05);
+  };
+
+  const scrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    const navbarHeight = 80; // Approximate navbar height
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+    
+    window.scrollTo({
+      top: targetPosition,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="App">
       <div className="stars-container">
@@ -36,7 +70,7 @@ function App() {
             key={i} 
             className={`star star-${i + 1}`}
             style={{
-              transform: `translate3d(0, ${scrollPosition * (0.2 + i * 0.1)}px, 0) scale(${1 + i * 0.1})`
+              transform: `translate3d(0, ${scrollPosition * getParallaxSpeed(i)}px, 0) scale(${1 + i * 0.05})`
             }}
           />
         ))}
@@ -45,9 +79,9 @@ function App() {
       <nav className={`navbar ${isNavbarVisible ? '' : 'navbar-hidden'}`}>
         <div className="navbar-brand">LaTeX Copilot</div>
         <div className="navbar-links">
-          <a href="#features">Features</a>
-          <a href="#installation">Install</a>
-          <a href="https://github.com/yourusername/latex-copilot" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="#features" onClick={(e) => scrollToSection(e, 'features')}>Features</a>
+          <a href="#installation" onClick={(e) => scrollToSection(e, 'installation')}>Install</a>
+          <a href="https://github.com/maxx06/auto-latex" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </nav>
 
@@ -60,8 +94,8 @@ function App() {
           </h1>
           <p className="subtitle">Transform your LaTeX writing experience with intelligent suggestions and automated formatting.</p>
           <div className="cta-buttons">
-            <a href="#installation" className="primary-button">Get Started</a>
-            <a href="https://github.com/yourusername/latex-copilot" className="secondary-button">View on GitHub</a>
+            <a href="#installation" onClick={(e) => scrollToSection(e, 'installation')} className="primary-button">Get Started</a>
+            <a href="https://github.com/maxx06/auto-latex" className="secondary-button">View on GitHub</a>
           </div>
         </div>
         <div className="header-gradient"></div>
@@ -119,6 +153,8 @@ function App() {
       <footer className="App-footer">
         <p>Created by Max Xiong</p>
       </footer>
+
+      <div className="custom-cursor" ref={cursorRef}></div>
     </div>
   );
 }
