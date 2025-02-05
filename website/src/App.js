@@ -102,6 +102,23 @@ function App() {
       </header>
 
       <main className="App-main">
+        <section className="demo-section">
+          <div className="demo-container">
+            <div className="video-placeholder">
+              <div className="video-aspect-ratio">
+                <iframe
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&controls=1&rel=0"
+                  title="LaTeX Copilot Demo"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="features" id="features">
           <h2>Features</h2>
           <div className="feature-grid">
