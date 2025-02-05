@@ -255,12 +255,11 @@ h1 {
 }
 
 .App-footer {
-  background-color: var(--card-background);
-  color: var(--text-secondary);
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
-  margin-top: 4rem;
-  position: relative;
-  z-index: 1;
+  text-align: center;
+  color: var(--text-secondary);
 }
 
 h2 {
@@ -331,7 +330,6 @@ html {
   position: absolute;
   width: 0;
   height: 0;
-  /* Made stars smaller - reduced from 4px to 2.5px */
   border-left: 2.5px solid transparent;
   border-right: 2.5px solid transparent;
   border-bottom: 5px solid #A1A1A6;
@@ -507,7 +505,6 @@ a, button, [role="button"], input[type="submit"], input[type="button"] {
   border: none;
 }
 
-/* Optional: if you want a heading above the demo video */
 .demo-container h2 {
   color: var(--text-primary);
   font-size: 2rem;

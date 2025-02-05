@@ -186,10 +186,6 @@ function setupEditorIntegration() {
   });
 }
 
-// Initialize chat box
-document.addEventListener('DOMContentLoaded', createChatBox);
-setTimeout(createChatBox, 1000);
-
 // Initialize editor integration
 document.addEventListener('DOMContentLoaded', setupEditorIntegration);
 setTimeout(setupEditorIntegration, 1000); 
