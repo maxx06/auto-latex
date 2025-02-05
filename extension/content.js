@@ -115,43 +115,14 @@ function setupEditorIntegration() {
         throw new Error(data.error);
       }
 
-      showSuggestion(data.response);
+      insertSuggestion(data.response);
     } catch (error) {
       console.error('Detailed error:', error);
       alert(`Error: ${error.message}`);
     }
   }
 
-  function showSuggestion(suggestedContent) {
-    const editor = findEditor();
-    if (!editor) {
-      console.error('Editor not found');
-      return;
-    }
-
-    const suggestionOverlay = document.createElement('div');
-    suggestionOverlay.className = 'suggestion-overlay';
-    suggestionOverlay.innerHTML = `
-      <div class="suggestion-content">
-        <h3>Suggested Changes</h3>
-        <pre>${suggestedContent}</pre>
-        <button id="accept-suggestion">Accept</button>
-        <button id="reject-suggestion">Reject</button>
-      </div>
-    `;
-    document.body.appendChild(suggestionOverlay);
-
-    document.getElementById('accept-suggestion').addEventListener('click', () => {
-      insertAtCursor(suggestedContent);
-      document.body.removeChild(suggestionOverlay);
-    });
-
-    document.getElementById('reject-suggestion').addEventListener('click', () => {
-      document.body.removeChild(suggestionOverlay);
-    });
-  }
-
-  function insertAtCursor(text) {
+  function insertSuggestion(suggestedContent) {
     const editor = findEditor();
     if (!editor) {
       console.error('Editor not found');
@@ -162,12 +133,38 @@ function setupEditorIntegration() {
     const range = selection.getRangeAt(0);
     range.deleteContents();
 
-    const textNode = document.createTextNode(text);
-    range.insertNode(textNode);
+    const suggestionSpan = document.createElement('span');
+    suggestionSpan.className = 'suggestion-highlight';
+    suggestionSpan.textContent = suggestedContent;
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'button-container';
+
+    const acceptButton = document.createElement('button');
+    acceptButton.textContent = 'Accept';
+    acceptButton.className = 'suggestion-button';
+    acceptButton.onclick = () => {
+      suggestionSpan.classList.remove('suggestion-highlight');
+      buttonContainer.remove();
+    };
+
+    const rejectButton = document.createElement('button');
+    rejectButton.textContent = 'Reject';
+    rejectButton.className = 'suggestion-button';
+    rejectButton.onclick = () => {
+      suggestionSpan.remove();
+      buttonContainer.remove();
+    };
+
+    buttonContainer.appendChild(acceptButton);
+    buttonContainer.appendChild(rejectButton);
+
+    range.insertNode(suggestionSpan);
+    suggestionSpan.parentNode.insertBefore(buttonContainer, suggestionSpan.nextSibling);
 
     // Move the cursor to the end of the inserted text
-    range.setStartAfter(textNode);
-    range.setEndAfter(textNode);
+    range.setStartAfter(suggestionSpan);
+    range.setEndAfter(suggestionSpan);
     selection.removeAllRanges();
     selection.addRange(range);
 
