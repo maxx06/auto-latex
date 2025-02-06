@@ -123,57 +123,110 @@ function setupEditorIntegration() {
   }
 
   function insertSuggestion(suggestedContent) {
-    const editor = findEditor();
+    const editor = document.querySelector('.cm-content');
     if (!editor) {
       console.error('Editor not found');
       return;
     }
 
     const selection = window.getSelection();
+    if (!selection.rangeCount) {
+      console.error('No selection available for suggestion insertion.');
+      return;
+    }
     const range = selection.getRangeAt(0);
+
+    // Capture the original text that is about to be replaced.
+    const originalText = selection.toString();
+    // Delete the current selection content.
     range.deleteContents();
 
+    // Create a suggestion span and store the original text in a data attribute.
     const suggestionSpan = document.createElement('span');
     suggestionSpan.className = 'suggestion-highlight';
     suggestionSpan.textContent = suggestedContent;
+    suggestionSpan.dataset.originalText = originalText;
 
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'button-container';
-
-    const acceptButton = document.createElement('button');
-    acceptButton.textContent = 'Accept';
-    acceptButton.className = 'suggestion-button';
-    acceptButton.onclick = () => {
-      suggestionSpan.classList.remove('suggestion-highlight');
-      buttonContainer.remove();
-    };
-
-    const rejectButton = document.createElement('button');
-    rejectButton.textContent = 'Reject';
-    rejectButton.className = 'suggestion-button';
-    rejectButton.onclick = () => {
-      suggestionSpan.remove();
-      buttonContainer.remove();
-    };
-
-    buttonContainer.appendChild(acceptButton);
-    buttonContainer.appendChild(rejectButton);
-
+    // Insert the suggestion into the editor.
     range.insertNode(suggestionSpan);
-    suggestionSpan.parentNode.insertBefore(buttonContainer, suggestionSpan.nextSibling);
 
-    // Move the cursor to the end of the inserted text
+    // Move the cursor to the end of the inserted text.
     range.setStartAfter(suggestionSpan);
     range.setEndAfter(suggestionSpan);
     selection.removeAllRanges();
     selection.addRange(range);
 
-    // Trigger a change event to ensure Overleaf updates
+    // Trigger a change event so that Overleaf updates.
     const event = new Event('input', {
       bubbles: true,
       cancelable: true,
     });
     editor.dispatchEvent(event);
+
+    // Show the floating suggestion popup.
+    showSuggestionPopup(suggestionSpan);
+  }
+
+  /*
+   * Floating Suggestion Popup
+   */
+  function showSuggestionPopup(suggestionElement) {
+    // Remove any existing popup.
+    const existingPopup = document.querySelector('.suggestion-popup');
+    if (existingPopup) {
+      existingPopup.remove();
+    }
+
+    // Create the popup container.
+    const popup = document.createElement('div');
+    popup.classList.add('suggestion-popup');
+
+    // Create the Accept button.
+    const acceptButton = document.createElement('button');
+    acceptButton.classList.add('suggestion-button', 'accept-button');
+    acceptButton.textContent = 'Accept';
+    acceptButton.addEventListener('click', () => {
+      acceptSuggestion(suggestionElement);
+      popup.remove();
+    });
+
+    // Create the Decline button.
+    const declineButton = document.createElement('button');
+    declineButton.classList.add('suggestion-button', 'decline-button');
+    declineButton.textContent = 'Decline';
+    declineButton.addEventListener('click', () => {
+      declineSuggestion(suggestionElement);
+      popup.remove();
+    });
+
+    // Append buttons to the popup.
+    popup.appendChild(acceptButton);
+    popup.appendChild(declineButton);
+
+    // Position the popup below the suggestion element.
+    const rect = suggestionElement.getBoundingClientRect();
+    popup.style.top = rect.bottom + window.scrollY + 5 + 'px';
+    popup.style.left = rect.left + window.scrollX + 'px';
+
+    // Append the popup to the document body.
+    document.body.appendChild(popup);
+  }
+
+  /*
+   * Dummy functions for accepting or declining a suggestion.
+   */
+  function acceptSuggestion(suggestionElement) {
+    console.log('Suggestion accepted:', suggestionElement);
+    // On acceptance, simply remove the highlight indicator.
+    suggestionElement.classList.remove('suggestion-highlight');
+  }
+
+  function declineSuggestion(suggestionElement) {
+    console.log('Suggestion declined:', suggestionElement);
+    // Revert all changes: restore the original text.
+    const originalText = suggestionElement.dataset.originalText || '';
+    const textNode = document.createTextNode(originalText);
+    suggestionElement.replaceWith(textNode);
   }
 
   document.addEventListener('keydown', (event) => {
