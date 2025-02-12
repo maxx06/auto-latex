@@ -20,8 +20,7 @@ function App() {
       }
       
       setLastScrollY(currentScrollY);
-      
-      // Parallax effect - negative value for correct direction
+
       setScrollPosition(-window.pageYOffset);
     };
 
