@@ -87,7 +87,7 @@ function setupEditorIntegration() {
     return editorElement;
   }
 
-  async function suggestChanges(message) {
+  async function suggestChanges(message, selectedContext = '') {
     try {
       const editor = findEditor();
       if (!editor) {
@@ -96,13 +96,13 @@ function setupEditorIntegration() {
       }
   
       const currentContent = editor.textContent;
-      console.log('Sending request to backend...');
+      console.log('Sending request to backend with context:', { message, currentContent, selectedContext });
       const response = await fetch('http://localhost:3000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, currentContent })
+        body: JSON.stringify({ message, currentContent, selectedContext })
       });
   
       if (!response.ok) {
@@ -118,7 +118,7 @@ function setupEditorIntegration() {
       insertSuggestion(data.response);
     } catch (error) {
       console.error('Detailed error:', error);
-      // Error feedback can be integrated into your UI here if needed.
+      // Optionally, display an in-app error message.
     }
   }
   
@@ -137,9 +137,8 @@ function setupEditorIntegration() {
     }
     const range = selection.getRangeAt(0);
   
-    // Capture the original text that is about to be replaced.
+    // Capture the original text.
     const originalText = selection.toString();
-    // Delete the current selection content.
     range.deleteContents();
   
     // Create a suggestion span and store the original text.
@@ -157,7 +156,7 @@ function setupEditorIntegration() {
     selection.removeAllRanges();
     selection.addRange(range);
   
-    // Trigger a change event so that Overleaf updates.
+    // Trigger a change event for Overleaf integration.
     const event = new Event('input', {
       bubbles: true,
       cancelable: true,
@@ -172,31 +171,25 @@ function setupEditorIntegration() {
    * Floating Suggestion Popup that continuously updates its position.
    */
   function showSuggestionPopup(suggestionElement) {
-    // Remove any existing popup.
     const existingPopup = document.querySelector('.suggestion-popup');
     if (existingPopup) {
       existingPopup.remove();
     }
   
-    // Create the popup container.
     const popup = document.createElement('div');
     popup.classList.add('suggestion-popup');
   
-    // Create the Accept button.
     const acceptButton = document.createElement('button');
     acceptButton.classList.add('suggestion-button', 'accept-button');
     acceptButton.textContent = 'Accept';
   
-    // Create the Decline button.
     const declineButton = document.createElement('button');
     declineButton.classList.add('suggestion-button', 'decline-button');
     declineButton.textContent = 'Decline';
   
-    // Append buttons to the popup.
     popup.appendChild(acceptButton);
     popup.appendChild(declineButton);
   
-    // Continuously update the popup's position.
     function updatePopupPosition() {
       if (!document.body.contains(popup)) return;
       const rect = suggestionElement.getBoundingClientRect();
@@ -206,7 +199,6 @@ function setupEditorIntegration() {
     }
     requestAnimationFrame(updatePopupPosition);
   
-    // Accept and decline event handlers.
     acceptButton.addEventListener('click', () => {
       acceptSuggestion(suggestionElement);
       popup.remove();
@@ -219,9 +211,6 @@ function setupEditorIntegration() {
     document.body.appendChild(popup);
   }
   
-  /*
-   * Accept or decline a suggestion.
-   */
   function acceptSuggestion(suggestionElement) {
     console.log('Suggestion accepted:', suggestionElement);
     suggestionElement.classList.remove('suggestion-highlight');
@@ -229,7 +218,6 @@ function setupEditorIntegration() {
   
   function declineSuggestion(suggestionElement) {
     console.log('Suggestion declined:', suggestionElement);
-    // Revert changes: restore the original text.
     const originalText = suggestionElement.dataset.originalText || '';
     const textNode = document.createTextNode(originalText);
     suggestionElement.replaceWith(textNode);
@@ -239,17 +227,22 @@ function setupEditorIntegration() {
    * Show a clean custom modal text box instead of a native prompt.
    */
   function showRequestModal() {
-    // Remove any existing modal if present.
+    // Remove any existing modal.
     const existingModal = document.querySelector('.extension-modal-overlay');
     if (existingModal) {
       existingModal.remove();
     }
   
-    // Create the modal overlay.
+    // Capture any highlighted text in the editor to use as context.
+    let selectedContext = "";
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim() !== "") {
+      selectedContext = selection.toString().trim();
+    }
+  
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'extension-modal-overlay';
   
-    // Create the modal container.
     const modal = document.createElement('div');
     modal.className = 'extension-modal';
   
@@ -268,7 +261,6 @@ function setupEditorIntegration() {
     cancelButton.textContent = 'Cancel';
     cancelButton.addEventListener('click', () => {
       modalOverlay.remove();
-      // Return focus to the text editor.
       const editor = document.querySelector('.cm-content');
       if (editor) {
         editor.focus();
@@ -282,12 +274,12 @@ function setupEditorIntegration() {
       const message = inputBox.value.trim();
       if (message !== '') {
         modalOverlay.remove();
-        // Return focus to the text editor.
         const editor = document.querySelector('.cm-content');
         if (editor) {
           editor.focus();
         }
-        suggestChanges(message);
+        // Pass the selectedContext along with the request.
+        suggestChanges(message, selectedContext);
       }
     });
   
@@ -302,7 +294,7 @@ function setupEditorIntegration() {
     document.body.appendChild(modalOverlay);
   }
   
-  // Use a capturing listener to help ensure the event fires before other handlers.
+  // Use a capturing listener.
   document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'Enter') {
       console.log("Ctrl+Enter detected: showing custom modal.");

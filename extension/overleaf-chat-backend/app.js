@@ -12,6 +12,21 @@ app.post('/chat', async (req, res) => {
   try {
     console.log('Received request:', req.body);
     
+    // Extract message, selected context, and full content from the request.
+    const { message, selectedContext, currentContent } = req.body;
+    
+    // Combine the user message with any highlighted context and full content.
+    let combinedMessage = message;
+    if (selectedContext && selectedContext.trim() !== '') {
+      combinedMessage += `\n\nContext: ${selectedContext}`;
+    }
+    if (currentContent && currentContent.trim() !== '') {
+      combinedMessage += `\n\nFull Content: ${currentContent}`;
+    }
+    
+    console.log('Final combined prompt sent to Claude:', combinedMessage);
+    
+    // Call Claude API with the combined prompt
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
       {
@@ -19,7 +34,7 @@ app.post('/chat', async (req, res) => {
         max_tokens: 1024,
         system: 'You are a LaTeX assistant. Only respond with valid LaTeX code. Do not include any explanations or markdown formatting. Your responses should be pure LaTeX that can be directly copied into a LaTeX document.',
         messages: [
-          { role: 'user', content: req.body.message }
+          { role: 'user', content: combinedMessage }
         ]
       },
       {
